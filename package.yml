@@ -1,0 +1,70 @@
+- name: install package
+  hosts: webservers
+  tasks:
+  - name: install necessary modules
+    yum:
+      name:
+      - git
+      - wget
+      - curl
+      - bison
+      - flex
+      - vim-minimal
+      - vim-filesystem
+      - vim-enhanced
+      - vim-common
+      - vim-X11
+      - net-tools.x86_64
+      - bind-utils
+      - mlocate
+      - bzip2
+      - file
+      - java-11-openjdk
+      - glibc-utils
+      - subversion
+      - git-lfs
+      - git-gui
+      - git-svn
+      - gitk
+      - libdrm-devel
+      - llvm7.0-devel
+      - libxshmfence-devel
+      - libxkbcommon-x11-devel
+      - libxcb-devel
+      - xcb-util-devel
+      - xcb-util-cursor-devel
+      - xcb-util-image-devel
+      - xcb-util-keysyms-devel
+      - xcd-util-renderutil-devel
+      - xcb-util-wm-devel
+      - xcb-proto
+      - wayland-protocols-devel
+      - wayland-devel
+      - libXext-devel
+      - libxkbcommon-devel
+      - libXdamage-devel
+      - libXxf86vm-devel
+      - libXrandr-devel
+      - elfutils-libelf-devel
+      - bzip2-devel
+      - gbdm-devel
+      - libffi-devel
+      - readline-devel
+      - sqlite-devel
+      - tk-devel
+      - uuid-devel
+      - xz-devel
+      - perl-Test-Harness
+      - perl-Test-Simple
+      - texinfo
+      - devtoolset-9-toolchain
+      - devtoolset-9-libasan-devel.x86_64
+      - devtoolset-9-liblsan-devel.x86_64
+      - devtoolset-9-libtsan-devel.x86_64
+      - devtoolset-9-libubsan-devel.x86_64
+      - perl-Thread-Queue
+      - autoconf
+      state: present
+
+  - name: install make
+
