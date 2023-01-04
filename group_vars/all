@@ -1,0 +1,7 @@
+---
+# Variables here are applicable to all groups
+MAKE_VERSION: 4.2.1
+BINUTILS_VERSION: 2.32
+GMP_VERSION: 6.1.2
+MPFR_VERSION: 4.0.2
+

@@ -1,6 +1,8 @@
 - name: install package
   hosts: webservers
   remote_user: root
+  vars_files:
+  - group_vars/all
   tasks:
   - name: Pretreatment
     shell: cp -rfpd /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bak
@@ -76,5 +78,105 @@
       - perl-Thread-Queue
       - autoconf
       state: present
+  
+  - name: Download make
+    get_url:
+      url: https://ftp.gnu.org/gnu/make/make-{{ MAKE_VERSION }}.tar.bz2
+      dest: /opt/make-{{ MAKE_VERSION }}.tar.bz2
+  
+  - name: Extract make archive
+    unarchive:
+      dest: /opt
+      src: /opt/make-{{ MAKE_VERSION }}.tar.bz2
+      creates: /opt/make-{{ MAKE_VERSION }}
+      copy: no
+
+  - name: install make
+    shell: |
+      cd /opt/make-{{ MAKE_VERSION }}
+      source scl_source enable devtoolset-9
+      ./configure --prefix=/usr
+      make -j "$(nproc)"
+      make PERL5LIB=$PWD/tests/ check || true
+      make install
+      cd ..
+      rm -rf make-{{ MAKE_VERSION }}*
+      ldconfig
+  
+  - name: Download binutils
+    get_url:
+      url: https://ftp.gnu.org/gnu/binutils/binutils-{{ BINUTILS_VERSION }}.tar.xz
+      dest: /opt/binutils-{{ BINUTILS_VERSION }}.tar.xz
+  
+  - name: Extract binutils archive
+    unarchive:
+      dest: /opt
+      src: /opt/binutils-{{ BINUTILS_VERSION }}.tar.xz
+      creates: /opt/binutils-{{ BINUTILS_VERSION }}
+      copy: no
+
+  - name: install binutils
+    shell: |
+      cd /opt/binutils-{{ BINUTILS_VERSION }}
+      source scl_source enable devtoolset-9
+      mkdir build && cd build
+      ../configure --prefix=/usr --enable-gold --enable-ld=default --enable-plugins --enable-shared  --disable-werror --enable-64-bit-bfd --with-system-zlib
+      make -j "$(nproc)"
+      make -k check || true
+      make install
+      cd ../../
+      rm -rf binutils-*
+
+  - name: Download gmp
+    get_url:
+      url: https://mirrors.tuna.tsinghua.edu.cn/gnu/gmp/gmp-{{ GMP_VERSION }}.tar.bz2
+      dest: /opt/gmp-{{ GMP_VERSION }}.tar.bz2
+  
+  - name: Extract gmp archive
+    unarchive:
+      dest: /opt
+      src: /opt/gmp-{{ GMP_VERSION }}.tar.bz2
+      creates: /opt/gmp-{{ GMP_VERSION }}
+      copy: no
+
+  - name: install gmp
+    shell: |
+      cd /opt/gmp-{{ GMP_VERSION }}
+      source scl_source enable devtoolset-9
+      ./configure --prefix=/usr --enable-cxx --disable-static --docdir=/usr/share/doc/gmp-6.1.2
+      make -j "$(nproc)"
+      make -j "$(nproc)" html
+      make check 2>&1 | tee gmp-check-log || true
+      awk '/# PASS:/{total+=$3} ; END{print total}' gmp-check-log
+      make install
+      ldconfig
+      make install-html
+      cd ..
+      rm -rf gmp-{{ GMP_VERSION }}*
+
+  - name: Download mpfr
+    get_url:
+      url: https://ftp.gnu.org/gnu/mpfr/mpfr-{{ MPFR_VERSION }}.tar.bz2
+      dest: /opt/mpfr-{{ MPFR_VERSION }}.tar.bz2
+  
+  - name: Extract mpfr archive
+    unarchive:
+      dest: /opt
+      src: /opt/mpfr-{{ MPFR_VERSION }}.tar.bz2
+      creates: /opt/mpfr-{{ MPFR_VERSION }}
+      copy: no
+
+  - name: install mpfr
+    shell: |
+      cd /opt/mpfr-{{ MPFR_VERSION }}
+      ./configure --prefix=/usr --disable-static --enable-thread-safe --docdir=/usr/share/doc/mpfr-${MPFR_VERSION}
+      make -j "$(nproc)" 
+      make -j "$(nproc)" 
+      make  check || true
+      make install
+      ldconfig
+      make install-html 
+      cd .. 
+      rm -rf mpfr-{{ MPFR_VERSION }}*
 
 
