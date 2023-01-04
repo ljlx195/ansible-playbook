@@ -1,9 +1,20 @@
 - name: install package
   hosts: webservers
+  remote_user: root
   tasks:
+  - name: Pretreatment
+    shell: cp -rfpd /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bak
+  - name: CentOS-Base copy
+    copy: src=Centos-7.repo dest=/etc/yum.repos.d/CentOS-Base.repo
+  - name: epel-7.repo copy
+    copy: src=epel-7.repo dest=/etc/yum.repos.d/epel.repo
+  - name: wandisco-svn.repo copy
+    copy: src=wandisco-svn.repo dest=/etc/yum.repos.d/wandisco-svn.repo
   - name: install necessary modules
     yum:
       name:
+      - https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
+      - centos-release-scl-rh
       - git
       - wget
       - curl
@@ -66,5 +77,4 @@
       - autoconf
       state: present
 
-  - name: install make
 
