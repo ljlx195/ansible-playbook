@@ -48,7 +48,7 @@
       - xcb-util-cursor-devel
       # - xcb-util-image-devel
       # - xcb-util-keysyms-devel
-      - xcd-util-renderutil-devel
+      - xcb-util-renderutil-devel
       # - xcb-util-wm-devel
       # - xcb-proto
       # - wayland-protocols-devel
@@ -60,7 +60,7 @@
       # - libXrandr-devel
       # - elfutils-libelf-devel
       # - bzip2-devel
-      - gbdm-devel
+      - gdbm-devel
       # - libffi-devel
       # - readline-devel
       # - sqlite-devel

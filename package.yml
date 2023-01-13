@@ -4,19 +4,37 @@
   vars_files:
   - group_vars/all
   tasks:
-  - name: Pretreatment
+  # repo prepare
+  - name: CentOS-Base.repo bak
     shell: cp -rfpd /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bak
+
   - name: CentOS-Base copy
     copy: src=Centos-7.repo dest=/etc/yum.repos.d/CentOS-Base.repo
+
   - name: epel-7.repo copy
     copy: src=epel-7.repo dest=/etc/yum.repos.d/epel.repo
+
   - name: wandisco-svn.repo copy
     copy: src=wandisco-svn.repo dest=/etc/yum.repos.d/wandisco-svn.repo
-  - name: install necessary modules
+  
+  - name: install endpoint and centos-release-scl
     yum:
       name:
       - https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
-      - centos-release-scl-rh
+      - centos-release-scl
+
+  # git-lfs config
+  - name: download git-lfs
+    get_url:
+      url: https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh 
+      dest: /opt/script.rpm.sh
+  
+  - name: bash git-lfs
+    shell: bash /opt/script.rpm.sh
+
+  - name: install necessary modules
+    yum:
+      name:
       - git
       - wget
       - curl
@@ -48,7 +66,7 @@
       - xcb-util-cursor-devel
       - xcb-util-image-devel
       - xcb-util-keysyms-devel
-      - xcd-util-renderutil-devel
+      - xcb-util-renderutil-devel
       - xcb-util-wm-devel
       - xcb-proto
       - wayland-protocols-devel
@@ -60,7 +78,7 @@
       - libXrandr-devel
       - elfutils-libelf-devel
       - bzip2-devel
-      - gbdm-devel
+      - gdbm-devel
       - libffi-devel
       - readline-devel
       - sqlite-devel
@@ -85,6 +103,7 @@
     get_url:
       url: https://ftp.gnu.org/gnu/make/make-{{ MAKE_VERSION }}.tar.bz2
       dest: /opt/make-{{ MAKE_VERSION }}.tar.bz2
+      validate_certs: false
   
   - name: Extract make archive
     unarchive:
@@ -95,6 +114,7 @@
 
   - name: install make
     shell: |
+      set -e
       cd /opt/make-{{ MAKE_VERSION }}
       source scl_source enable devtoolset-9
       ./configure --prefix=/usr
@@ -110,6 +130,7 @@
     get_url:
       url: https://ftp.gnu.org/gnu/binutils/binutils-{{ BINUTILS_VERSION }}.tar.xz
       dest: /opt/binutils-{{ BINUTILS_VERSION }}.tar.xz
+      validate_certs: false
   
   - name: Extract binutils archive
     unarchive:
@@ -120,6 +141,7 @@
 
   - name: install binutils
     shell: |
+      set -e
       cd /opt/binutils-{{ BINUTILS_VERSION }}
       source scl_source enable devtoolset-9
       mkdir build && cd build
@@ -135,6 +157,7 @@
     get_url:
       url: https://mirrors.tuna.tsinghua.edu.cn/gnu/gmp/gmp-{{ GMP_VERSION }}.tar.bz2
       dest: /opt/gmp-{{ GMP_VERSION }}.tar.bz2
+      validate_certs: false
   
   - name: Extract gmp archive
     unarchive:
@@ -145,6 +168,7 @@
 
   - name: install gmp
     shell: |
+      set -e
       cd /opt/gmp-{{ GMP_VERSION }}
       source scl_source enable devtoolset-9
       ./configure --prefix=/usr --enable-cxx --disable-static --docdir=/usr/share/doc/gmp-6.1.2
@@ -163,6 +187,7 @@
     get_url:
       url: https://ftp.gnu.org/gnu/mpfr/mpfr-{{ MPFR_VERSION }}.tar.bz2
       dest: /opt/mpfr-{{ MPFR_VERSION }}.tar.bz2
+      validate_certs: false
   
   - name: Extract mpfr archive
     unarchive:
@@ -173,10 +198,12 @@
 
   - name: install mpfr
     shell: |
+      set -e
       cd /opt/mpfr-{{ MPFR_VERSION }}
-      ./configure --prefix=/usr --disable-static --enable-thread-safe --docdir=/usr/share/doc/mpfr-${MPFR_VERSION}
+      source scl_source enable devtoolset-9
+      ./configure --prefix=/usr --disable-static --enable-thread-safe --docdir=/usr/share/doc/mpfr-{{ MPFR_VERSION }}
       make -j "$(nproc)" 
-      make -j "$(nproc)" 
+      make -j "$(nproc)" html
       make  check || true
       make install
       ldconfig
@@ -189,6 +216,7 @@
     get_url:
       url: https://mirrors.tuna.tsinghua.edu.cn/gnu/mpc/mpc-{{ MPC_VERSION }}.tar.gz
       dest: /opt/mpc-{{ MPC_VERSION }}.tar.gz
+      validate_certs: false
   
   - name: Extract mpc archive
     unarchive:
@@ -199,8 +227,10 @@
 
   - name: install mpc
     shell: |
+      set -e
       cd /opt/mpc-{{ MPC_VERSION }}
-      ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/mpc-${MPC_VERSION}
+      source scl_source enable devtoolset-9
+      ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/mpc-{{ MPC_VERSION }}
       make -j "$(nproc)" 
       make -j "$(nproc)" html
       make  check || true
@@ -215,6 +245,7 @@
     get_url:
       url: https://mirrors.kernel.org/gnu/gcc/gcc-{{ gcc_version }}/gcc-{{ gcc_version }}.tar.gz
       dest: /opt/gcc-{{ gcc_version }}.tar.gz
+      validate_certs: false
   
   - name: Extract gcc archive
     unarchive:
@@ -225,10 +256,12 @@
 
   - name: install gcc
     shell: |
+      set -e
       cd /opt/gcc-{{ gcc_version }}
       ./contrib/download_prerequisites 
       mkdir build 
-      cd build 
+      cd build
+      source scl_source enable devtoolset-9
       ../configure --prefix=/usr --enable-checking=release --enable-language=c,c++,fortran,go -disable-multilib 
       make -j "$(nproc)" 
       make install-strip 
@@ -242,6 +275,7 @@
     get_url:
       url: https://mirrors.kernel.org/gnu/gdb/gdb-{{ gdb_version }}.tar.gz
       dest: /opt/gdb-{{ gdb_version }}.tar.gz
+      validate_certs: false
   
   - name: Extract gdb archive
     unarchive:
@@ -252,6 +286,7 @@
 
   - name: install gdb
     shell: |
+      set -e
       cd /opt/gdb-{{ gdb_version }}
       mkdir build 
       cd build 
@@ -267,6 +302,7 @@
     get_url:
       url: https://ftp.gnu.org/gnu/automake/automake-{{ AUTOMAKE_VERSION }}.tar.gz
       dest: /opt/automake-{{ AUTOMAKE_VERSION }}.tar.gz
+      validate_certs: false
   
   - name: Extract automake archive
     unarchive:
@@ -277,6 +313,7 @@
 
   - name: install automake
     shell: |
+      set -e
       cd /opt/automake-{{ AUTOMAKE_VERSION }}
       ./configure --prefix=/usr --docdir=/usr/share/doc/automake-1.16.1 
       make -j "$(nproc)"
@@ -291,6 +328,7 @@
     get_url:
       url: https://sourceware.org/elfutils/ftp/{{ ELFUTILS_VERSION }}/elfutils-{{ ELFUTILS_VERSION }}.tar.bz2
       dest: /opt/elfutils-{{ ELFUTILS_VERSION }}.tar.bz2
+      validate_certs: false
   
   - name: Extract ELFUTILS archive
     unarchive:
@@ -301,6 +339,7 @@
 
   - name: install ELFUTILS
     shell: |
+      set -e
       cd /opt/elfutils-{{ ELFUTILS_VERSION }}
       ./configure --prefix=/usr 
       make -j "$(nproc)" &&  \
@@ -316,6 +355,7 @@
     get_url:
       url: https://cmake.org/files/v{{ CMAKE_VERSION }}/cmake-{{ CMAKE_VERSION }}.{{ CMAKE_BUILD_VERSION }}-linux-x86_64.sh
       dest: /opt/cmake-{{ CMAKE_VERSION }}.{{ CMAKE_BUILD_VERSION }}-linux-x86_64.sh
+      validate_certs: false
   
   # - name: Extract CMake archive
   #   unarchive:
@@ -328,14 +368,15 @@
     shell: |
       mkdir /opt/cmake
       cd /opt
-      sh cmake-${CMAKE_VERSION}.${CMAKE_BUILD_VERSION}-linux-x86_64.sh --prefix=/usr --skip-license
-      rm -f cmake-${CMAKE_VERSION}}.${CMAKE_BUILD_VERSION}-linux-x86_64.sh
+      sh cmake-{{ CMAKE_VERSION }}.{{ CMAKE_BUILD_VERSION }}-linux-x86_64.sh --prefix=/usr --skip-license
+      rm -f cmake-{{ CMAKE_VERSION }}.{{ CMAKE_BUILD_VERSION }}-linux-x86_64.sh
 
   # install OPENSSL
   - name: Download OPENSSL
     get_url:
       url: https://www.openssl.org/source/openssl-{{ OPENSSL_VERSION }}.tar.gz
       dest: /opt/openssl-{{ OPENSSL_VERSION }}.tar.gz
+      validate_certs: false
   
   - name: Extract OPENSSL archive
     unarchive:
@@ -346,6 +387,7 @@
 
   - name: install OPENSSL
     shell: |
+      set -e
       cd /opt/openssl-{{ OPENSSL_VERSION }}
       ./config --prefix=/usr --openssldir=/usr shared zlib 
       make -j$(nproc) 
@@ -360,6 +402,7 @@
     get_url:
       url: https://github.com/PCRE2Project/pcre2/releases/download/pcre{{ PCRE_VERSION }}/pcre{{ PCRE_VERSION }}.tar.gz
       dest: /opt/pcre{{ PCRE_VERSION }}.tar.gz
+      validate_certs: false
   
   - name: Extract PCRE archive
     unarchive:
@@ -370,40 +413,45 @@
 
   - name: install PCRE
     shell: |
+      set -e
       cd /opt/pcre{{ PCRE_VERSION }}
       ./configure --prefix=/usr 
       make -j $(nproc) 
       make install
       cd ..
-      rm -rf pcre{{ PCRE_VERSION }}
+      rm -rf pcre{{ PCRE_VERSION }}*
 
   # install SWIG
   - name: Download SWIG
     get_url:
       url: https://github.com/swig/swig/archive/rel-{{ SWIG_VERSION }}.tar.gz
       dest: /opt/rel-{{ SWIG_VERSION }}.tar.gz
+      validate_certs: false
   
   - name: Extract SWIG archive
     unarchive:
       dest: /opt
       src: /opt/rel-{{ SWIG_VERSION }}.tar.gz
-      creates: /opt/rel-{{ SWIG_VERSION }}
+      creates: /opt/swig-rel-{{ SWIG_VERSION }}
       copy: no
 
   - name: install SWIG
     shell: | 
-      cd /opt/rel-{{ SWIG_VERSION }}
+      set -e
+      cd /opt/swig-rel-{{ SWIG_VERSION }}
       ./autogen.sh && ./configure --prefix=/usr --without-pcre
       make -j $(nproc) 
       make install
       cd ..
-      rm -rf rel-{{ SWIG_VERSION }}*
+      rm -rf swig-rel-{{ SWIG_VERSION }}*
+      rm -rf rel-{{ SWIG_VERSION }}.tar.gz
 
   # install libtool
   - name: Download libtool
     get_url:
       url: http://ftpmirror.gnu.org/libtool/libtool-{{ LIBTOOL_VERSION }}.tar.gz
       dest: /opt/libtool-{{ LIBTOOL_VERSION }}.tar.gz
+      validate_certs: false
   
   - name: Extract libtool archive
     unarchive:
@@ -414,6 +462,7 @@
 
   - name: install libtool
     shell: | 
+      set -e
       cd /opt/libtool-{{ LIBTOOL_VERSION }}
       ./configure --prefix=/usr
       make -j $(nproc) 
@@ -427,6 +476,7 @@
     get_url:
       url: https://download.samba.org/pub/rsync/src/rsync-{{ RSYNC_VERSION }}.tar.gz
       dest: /opt/rsync-{{ RSYNC_VERSION }}.tar.gz
+      validate_certs: false
   
   - name: Extract rsync archive
     unarchive:
@@ -437,6 +487,7 @@
 
   - name: install rsync
     shell: | 
+      set -e
       cd /opt/rsync-{{ RSYNC_VERSION }}
       ./configure --prefix=/usr --disable-xxhash --disable-zstd --disable-lz4
       make -j $(nproc) 
@@ -448,8 +499,9 @@
   # install python3.10.5
   - name: Download python
     get_url:
-      url: https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-{{ PYTHON_VERSION }}.tar.xz
+      url: https://www.python.org/ftp/python/{{ PYTHON_VERSION }}/Python-{{ PYTHON_VERSION }}.tar.xz
       dest: /opt/Python-{{ PYTHON_VERSION }}.tar.xz
+      validate_certs: false
   
   - name: Extract python archive
     unarchive:
@@ -460,6 +512,7 @@
 
   - name: install python
     shell: | 
+      set -e
       cd /opt/Python-{{ PYTHON_VERSION }}
       export CFLAGS=$(pkg-config --cflags openssl11)
       export LDFLAGS=$(pkg-config --libs openssl11)
