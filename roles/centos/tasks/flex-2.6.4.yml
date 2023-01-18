@@ -1,0 +1,29 @@
+# install flex
+- name: Download flex
+  get_url:
+    url: https://github.com/westes/flex/files/981163/flex-{{ FLEX_VERSION }}.tar.gz
+    dest: /opt/flex-{{ FLEX_VERSION }}.tar.gz
+    validate_certs: false
+
+- name: Extract flex archive
+  unarchive:
+    dest: /opt
+    src: /opt/flex-{{ FLEX_VERSION }}.tar.gz
+    creates: /opt/flex-{{ FLEX_VERSION }}
+    copy: no
+
+- name: install flex
+  shell: |
+    set -e
+    cd /opt/flex-{{ FLEX_VERSION }}
+    sed -i "/math.h/a #include <malloc.h>" src/flexdef.h
+    HELP2MAN=/usr/bin/true
+    ./configure --prefix=/usr --docdir=/usr/share/doc/flex-2.6.4
+    make -j "$(nproc)"
+    make check || true
+    make install
+    ln -sv /usr/bin/flex /usr/bin/lex
+    cd ..
+    rm -rf make-{{ MAKE_VERSION }}*
+    ldconfig
+ 

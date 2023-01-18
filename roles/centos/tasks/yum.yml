@@ -1,0 +1,93 @@
+# repo prepare
+- name: CentOS-Base.repo bak
+  shell: cp -rfpd /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bak
+
+- name: CentOS-Base copy
+  copy: src=Centos-7.repo dest=/etc/yum.repos.d/CentOS-Base.repo
+
+- name: epel-7.repo copy
+  copy: src=epel-7.repo dest=/etc/yum.repos.d/epel.repo
+
+- name: wandisco-svn.repo copy
+  copy: src=wandisco-svn.repo dest=/etc/yum.repos.d/wandisco-svn.repo
+
+- name: install endpoint and centos-release-scl
+  yum:
+    name:
+    - https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
+    - centos-release-scl
+
+# git-lfs config
+- name: download git-lfs
+  get_url:
+    url: https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh 
+    dest: /opt/script.rpm.sh
+
+- name: bash git-lfs
+  shell: bash /opt/script.rpm.sh
+
+- name: install necessary modules
+  yum:
+    name:
+    - git
+    - wget
+    - curl
+    - bison
+    - flex
+    - vim-minimal
+    - vim-filesystem
+    - vim-enhanced
+    - vim-common
+    - vim-X11
+    - net-tools.x86_64
+    - bind-utils
+    - mlocate
+    - bzip2
+    - file
+    - java-11-openjdk
+    - glibc-utils
+    - subversion
+    - git-lfs
+    - git-gui
+    - git-svn
+    - gitk
+    - libdrm-devel
+    - llvm7.0-devel
+    - libxshmfence-devel
+    - libxkbcommon-x11-devel
+    - libxcb-devel
+    - xcb-util-devel
+    - xcb-util-cursor-devel
+    - xcb-util-image-devel
+    - xcb-util-keysyms-devel
+    - xcb-util-renderutil-devel
+    - xcb-util-wm-devel
+    - xcb-proto
+    - wayland-protocols-devel
+    - wayland-devel
+    - libXext-devel
+    - libxkbcommon-devel
+    - libXdamage-devel
+    - libXxf86vm-devel
+    - libXrandr-devel
+    - elfutils-libelf-devel
+    - bzip2-devel
+    - gdbm-devel
+    - libffi-devel
+    - readline-devel
+    - sqlite-devel
+    - tk-devel
+    - uuid-devel
+    - xz-devel
+    - perl-Test-Harness
+    - perl-Test-Simple
+    - texinfo
+    - devtoolset-9-toolchain
+    - devtoolset-9-libasan-devel.x86_64
+    - devtoolset-9-liblsan-devel.x86_64
+    - devtoolset-9-libtsan-devel.x86_64
+    - devtoolset-9-libubsan-devel.x86_64
+    - perl-Thread-Queue
+    - autoconf
+    - openssh-server
+    state: present
