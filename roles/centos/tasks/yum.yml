@@ -32,8 +32,6 @@
     - git
     - wget
     - curl
-    - bison
-    - flex
     - vim-minimal
     - vim-filesystem
     - vim-enhanced
