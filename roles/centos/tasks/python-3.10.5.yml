@@ -1,0 +1,27 @@
+# install python3.10.5
+- name: Download python
+  get_url:
+    url: https://www.python.org/ftp/python/{{ PYTHON_VERSION }}/Python-{{ PYTHON_VERSION }}.tar.xz
+    dest: /opt/Python-{{ PYTHON_VERSION }}.tar.xz
+    validate_certs: false
+
+- name: Extract python archive
+  unarchive:
+    dest: /opt
+    src: /opt/Python-{{ PYTHON_VERSION }}.tar.xz
+    creates: /opt/Python-{{ PYTHON_VERSION }}
+    copy: no
+
+- name: install python
+  shell: | 
+    set -e
+    cd /opt/Python-{{ PYTHON_VERSION }}
+    export CFLAGS=$(pkg-config --cflags openssl11)
+    export LDFLAGS=$(pkg-config --libs openssl11)
+    CXX=$(whereis g++|awk '{print $2}')  ./configure  --prefix=/usr --enable-shared --enable-optimizations
+    make
+    make install
+    cd ..
+    rm -rf Python-{{ PYTHON_VERSION }}*
+    ldconfig
+    pip3 install conan meson Ninja mako gcovr xmltodict

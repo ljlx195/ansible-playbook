@@ -1,0 +1,28 @@
+# install mpc
+- name: Download mpc
+  get_url:
+    url: https://mirrors.tuna.tsinghua.edu.cn/gnu/mpc/mpc-{{ MPC_VERSION }}.tar.gz
+    dest: /opt/mpc-{{ MPC_VERSION }}.tar.gz
+    validate_certs: false
+
+- name: Extract mpc archive
+  unarchive:
+    dest: /opt
+    src: /opt/mpc-{{ MPC_VERSION }}.tar.gz
+    creates: /opt/mpc-{{ MPC_VERSION }}
+    copy: no
+
+- name: install mpc
+  shell: |
+    set -e
+    cd /opt/mpc-{{ MPC_VERSION }}
+    source scl_source enable devtoolset-9
+    ./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/mpc-{{ MPC_VERSION }}
+    make -j "$(nproc)" 
+    make -j "$(nproc)" html
+    make  check || true
+    make install
+    ldconfig
+    make install-html
+    cd ..
+    rm -rf mpc-{{ MPC_VERSION }}*

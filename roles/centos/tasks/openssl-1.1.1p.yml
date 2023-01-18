@@ -1,0 +1,25 @@
+# install OPENSSL
+- name: Download OPENSSL
+  get_url:
+    url: https://www.openssl.org/source/openssl-{{ OPENSSL_VERSION }}.tar.gz
+    dest: /opt/openssl-{{ OPENSSL_VERSION }}.tar.gz
+    validate_certs: false
+
+- name: Extract OPENSSL archive
+  unarchive:
+    dest: /opt
+    src: /opt/openssl-{{ OPENSSL_VERSION }}.tar.gz
+    creates: /opt/openssl-{{ OPENSSL_VERSION }}
+    copy: no
+
+- name: install OPENSSL
+  shell: |
+    set -e
+    cd /opt/openssl-{{ OPENSSL_VERSION }}
+    ./config --prefix=/usr --openssldir=/usr shared zlib 
+    make -j$(nproc) 
+    make TESTS=-test_afalg test 
+    make install 
+    cd ..
+    rm -rf openssl-{{ OPENSSL_VERSION }}*
+    ldconfig

@@ -1,0 +1,25 @@
+# install automake
+- name: Download automake
+  get_url:
+    url: https://ftp.gnu.org/gnu/automake/automake-{{ AUTOMAKE_VERSION }}.tar.gz
+    dest: /opt/automake-{{ AUTOMAKE_VERSION }}.tar.gz
+    validate_certs: false
+
+- name: Extract automake archive
+  unarchive:
+    dest: /opt
+    src: /opt/automake-{{ AUTOMAKE_VERSION }}.tar.gz
+    creates: /opt/automake-{{ AUTOMAKE_VERSION }}
+    copy: no
+
+- name: install automake
+  shell: |
+    set -e
+    cd /opt/automake-{{ AUTOMAKE_VERSION }}
+    ./configure --prefix=/usr --docdir=/usr/share/doc/automake-{{ AUTOMAKE_VERSION }}
+    make -j "$(nproc)"
+    make -j4 check || true 
+    make install 
+    ldconfig 
+    cd .. 
+    rm -rf automake-{{ AUTOMAKE_VERSION }}*

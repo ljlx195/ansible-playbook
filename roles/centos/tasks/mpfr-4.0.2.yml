@@ -1,0 +1,28 @@
+# install mpfr
+- name: Download mpfr
+  get_url:
+    url: https://ftp.gnu.org/gnu/mpfr/mpfr-{{ MPFR_VERSION }}.tar.bz2
+    dest: /opt/mpfr-{{ MPFR_VERSION }}.tar.bz2
+    validate_certs: false
+
+- name: Extract mpfr archive
+  unarchive:
+    dest: /opt
+    src: /opt/mpfr-{{ MPFR_VERSION }}.tar.bz2
+    creates: /opt/mpfr-{{ MPFR_VERSION }}
+    copy: no
+
+- name: install mpfr
+  shell: |
+    set -e
+    cd /opt/mpfr-{{ MPFR_VERSION }}
+    source scl_source enable devtoolset-9
+    ./configure --prefix=/usr --disable-static --enable-thread-safe --docdir=/usr/share/doc/mpfr-{{ MPFR_VERSION }}
+    make -j "$(nproc)" 
+    make -j "$(nproc)" html
+    make  check || true
+    make install
+    ldconfig
+    make install-html 
+    cd .. 
+    rm -rf mpfr-{{ MPFR_VERSION }}*

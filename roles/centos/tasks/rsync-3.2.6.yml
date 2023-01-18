@@ -1,0 +1,24 @@
+# install rsync
+- name: Download rsync
+  get_url:
+    url: https://download.samba.org/pub/rsync/src/rsync-{{ RSYNC_VERSION }}.tar.gz
+    dest: /opt/rsync-{{ RSYNC_VERSION }}.tar.gz
+    validate_certs: false
+
+- name: Extract rsync archive
+  unarchive:
+    dest: /opt
+    src: /opt/rsync-{{ RSYNC_VERSION }}.tar.gz
+    creates: /opt/rsync-{{ RSYNC_VERSION }}
+    copy: no
+
+- name: install rsync
+  shell: | 
+    set -e
+    cd /opt/rsync-{{ RSYNC_VERSION }}
+    ./configure --prefix=/usr --disable-xxhash --disable-zstd --disable-lz4
+    make -j $(nproc) 
+    make install
+    cd ..
+    rm -rf rsync-{{ RSYNC_VERSION }}*
+    ldconfig

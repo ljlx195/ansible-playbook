@@ -1,2 +1,19 @@
 - include: yum.yml
+- include: make-{{ MAKE_VERSION }}.yml
+- include: binutils-{{ BINUTILS_VERSION }}.yml
+- include: gmp-{{ GMP_VERSION }}.yml
+- include: mpfr-{{ MPFR_VERSION }}.yml
+- include: mpc-{{ MPC_VERSION }}.yml
+- include: gcc-{{ gcc_version }}.yml
+- include: gdb-{{ gdb_version }}.yml
+- include: automake-{{ AUTOMAKE_VERSION }}.yml
+- include: elfutils-{{ ELFUTILS_VERSION }}.yml
+- include: CMake-{{ CMAKE_VERSION }}.yml
+- include: openssl-{{ OPENSSL_VERSION }}.yml
+- include: pcre-{{ PCRE_VERSION }}.yml
+- include: swig-{{ SWIG_VERSION }}.yml
+- include: libtool-{{ LIBTOOL_VERSION }}.yml
+- include: rsync-{{ RSYNC_VERSION }}.yml
+- include: python-{{ PYTHON_VERSION }}.yml
+- include: bison-{{ BISON_VERSION }}.yml
 - include: flex-{{ FLEX_VERSION }}.yml

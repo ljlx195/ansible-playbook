@@ -17,13 +17,11 @@
     set -e
     cd /opt/flex-{{ FLEX_VERSION }}
     sed -i "/math.h/a #include <malloc.h>" src/flexdef.h
-    HELP2MAN=/usr/bin/true
-    ./configure --prefix=/usr --docdir=/usr/share/doc/flex-2.6.4
+    HELP2MAN=/usr/bin/true && ./configure --prefix=/usr --docdir=/usr/share/doc/flex-2.6.4
     make -j "$(nproc)"
     make check || true
     make install
-    ln -sv /usr/bin/flex /usr/bin/lex
     cd ..
-    rm -rf make-{{ MAKE_VERSION }}*
+    rm -rf flex-{{ FLEX_VERSION }}*
     ldconfig
  

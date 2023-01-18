@@ -1,0 +1,29 @@
+# install gmp
+- name: Download gmp
+  get_url:
+    url: https://mirrors.tuna.tsinghua.edu.cn/gnu/gmp/gmp-{{ GMP_VERSION }}.tar.bz2
+    dest: /opt/gmp-{{ GMP_VERSION }}.tar.bz2
+    validate_certs: false
+
+- name: Extract gmp archive
+  unarchive:
+    dest: /opt
+    src: /opt/gmp-{{ GMP_VERSION }}.tar.bz2
+    creates: /opt/gmp-{{ GMP_VERSION }}
+    copy: no
+
+- name: install gmp
+  shell: |
+    set -e
+    cd /opt/gmp-{{ GMP_VERSION }}
+    source scl_source enable devtoolset-9
+    ./configure --prefix=/usr --enable-cxx --disable-static --docdir=/usr/share/doc/gmp-{{ GMP_VERSION }}
+    make -j "$(nproc)"
+    make -j "$(nproc)" html
+    make check 2>&1 | tee gmp-check-log || true
+    awk '/# PASS:/{total+=$3} ; END{print total}' gmp-check-log
+    make install
+    ldconfig
+    make install-html
+    cd ..
+    rm -rf gmp-{{ GMP_VERSION }}*

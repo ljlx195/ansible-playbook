@@ -1,0 +1,26 @@
+# install gdb
+- name: Download gdb
+  get_url:
+    url: https://mirrors.kernel.org/gnu/gdb/gdb-{{ gdb_version }}.tar.gz
+    dest: /opt/gdb-{{ gdb_version }}.tar.gz
+    validate_certs: false
+
+- name: Extract gdb archive
+  unarchive:
+    dest: /opt
+    src: /opt/gdb-{{ gdb_version }}.tar.gz
+    creates: /opt/gdb-{{ gdb_version }}
+    copy: no
+
+- name: install gdb
+  shell: |
+    set -e
+    cd /opt/gdb-{{ gdb_version }}
+    mkdir build 
+    cd build 
+    ../configure --prefix=/usr 
+    make -j "$(nproc)"
+    make install 
+    cd ../.. 
+    rm -rf  gdb-{{ gdb_version }}* 
+    ldconfig

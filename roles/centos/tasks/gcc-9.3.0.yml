@@ -1,0 +1,29 @@
+# install gcc
+- name: Download gcc
+  get_url:
+    url: https://mirrors.kernel.org/gnu/gcc/gcc-{{ gcc_version }}/gcc-{{ gcc_version }}.tar.gz
+    dest: /opt/gcc-{{ gcc_version }}.tar.gz
+    validate_certs: false
+
+- name: Extract gcc archive
+  unarchive:
+    dest: /opt
+    src: /opt/gcc-{{ gcc_version }}.tar.gz
+    creates: /opt/gcc-{{ gcc_version }}
+    copy: no
+
+- name: install gcc
+  shell: |
+    set -e
+    cd /opt/gcc-{{ gcc_version }}
+    ./contrib/download_prerequisites 
+    mkdir build 
+    cd build
+    source scl_source enable devtoolset-9
+    ../configure --prefix=/usr --enable-checking=release --enable-language=c,c++,fortran,go -disable-multilib 
+    make -j "$(nproc)" 
+    make install-strip 
+    ln -snf /usr/bin/gcc /usr/bin/cc 
+    cd ../.. 
+    rm -rf  gcc-{{ gcc_version }}* 
+    ldconfig  

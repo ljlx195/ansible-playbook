@@ -1,0 +1,24 @@
+# install SWIG
+- name: Download SWIG
+  get_url:
+    url: https://github.com/swig/swig/archive/rel-{{ SWIG_VERSION }}.tar.gz
+    dest: /opt/rel-{{ SWIG_VERSION }}.tar.gz
+    validate_certs: false
+
+- name: Extract SWIG archive
+  unarchive:
+    dest: /opt
+    src: /opt/rel-{{ SWIG_VERSION }}.tar.gz
+    creates: /opt/swig-rel-{{ SWIG_VERSION }}
+    copy: no
+
+- name: install SWIG
+  shell: | 
+    set -e
+    cd /opt/swig-rel-{{ SWIG_VERSION }}
+    ./autogen.sh && ./configure --prefix=/usr --without-pcre
+    make -j $(nproc) 
+    make install
+    cd ..
+    rm -rf swig-rel-{{ SWIG_VERSION }}*
+    rm -rf rel-{{ SWIG_VERSION }}.tar.gz

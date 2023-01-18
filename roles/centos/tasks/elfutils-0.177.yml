@@ -1,0 +1,26 @@
+# install ELFUTILS
+- name: Download ELFUTILS
+  get_url:
+    url: https://sourceware.org/elfutils/ftp/{{ ELFUTILS_VERSION }}/elfutils-{{ ELFUTILS_VERSION }}.tar.bz2
+    dest: /opt/elfutils-{{ ELFUTILS_VERSION }}.tar.bz2
+    validate_certs: false
+
+- name: Extract ELFUTILS archive
+  unarchive:
+    dest: /opt
+    src: /opt/elfutils-{{ ELFUTILS_VERSION }}.tar.bz2
+    creates: /opt/elfutils-{{ ELFUTILS_VERSION }}
+    copy: no
+
+- name: install ELFUTILS
+  shell: |
+    set -e
+    cd /opt/elfutils-{{ ELFUTILS_VERSION }}
+    ./configure --prefix=/usr 
+    make -j "$(nproc)" &&  \
+    make check || true  
+    make -C libelf install 
+    install -vm644 config/libelf.pc /usr/lib/pkgconfig 
+    cd .. 
+    rm -rf elfutils-{{ ELFUTILS_VERSION }}* 
+    ldconfig

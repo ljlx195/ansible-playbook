@@ -1,0 +1,24 @@
+# install libtool
+- name: Download libtool
+  get_url:
+    url: http://ftpmirror.gnu.org/libtool/libtool-{{ LIBTOOL_VERSION }}.tar.gz
+    dest: /opt/libtool-{{ LIBTOOL_VERSION }}.tar.gz
+    validate_certs: false
+
+- name: Extract libtool archive
+  unarchive:
+    dest: /opt
+    src: /opt/libtool-{{ LIBTOOL_VERSION }}.tar.gz
+    creates: /opt/libtool-{{ LIBTOOL_VERSION }}
+    copy: no
+
+- name: install libtool
+  shell: | 
+    set -e
+    cd /opt/libtool-{{ LIBTOOL_VERSION }}
+    ./configure --prefix=/usr
+    make -j $(nproc) 
+    make install
+    cd ..
+    rm -rf libtool-{{ LIBTOOL_VERSION }}*
+    ldconfig

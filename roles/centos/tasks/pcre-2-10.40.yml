@@ -1,0 +1,23 @@
+# install PCRE
+- name: Download PCRE
+  get_url:
+    url: https://github.com/PCRE2Project/pcre2/releases/download/pcre{{ PCRE_VERSION }}/pcre{{ PCRE_VERSION }}.tar.gz
+    dest: /opt/pcre{{ PCRE_VERSION }}.tar.gz
+    validate_certs: false
+
+- name: Extract PCRE archive
+  unarchive:
+    dest: /opt
+    src: /opt/pcre{{ PCRE_VERSION }}.tar.gz
+    creates: /opt/pcre{{ PCRE_VERSION }}
+    copy: no
+
+- name: install PCRE
+  shell: |
+    set -e
+    cd /opt/pcre{{ PCRE_VERSION }}
+    ./configure --prefix=/usr 
+    make -j $(nproc) 
+    make install
+    cd ..
+    rm -rf pcre{{ PCRE_VERSION }}*

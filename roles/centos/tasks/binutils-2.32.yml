@@ -1,0 +1,26 @@
+# install binutils
+- name: Download binutils
+  get_url:
+    url: https://ftp.gnu.org/gnu/binutils/binutils-{{ BINUTILS_VERSION }}.tar.xz
+    dest: /opt/binutils-{{ BINUTILS_VERSION }}.tar.xz
+    validate_certs: false
+
+- name: Extract binutils archive
+  unarchive:
+    dest: /opt
+    src: /opt/binutils-{{ BINUTILS_VERSION }}.tar.xz
+    creates: /opt/binutils-{{ BINUTILS_VERSION }}
+    copy: no
+
+- name: install binutils
+  shell: |
+    set -e
+    cd /opt/binutils-{{ BINUTILS_VERSION }}
+    source scl_source enable devtoolset-9
+    mkdir build && cd build
+    ../configure --prefix=/usr --enable-gold --enable-ld=default --enable-plugins --enable-shared  --disable-werror --enable-64-bit-bfd --with-system-zlib
+    make -j "$(nproc)"
+    make -k check || true
+    make install
+    cd ../../
+    rm -rf binutils-*

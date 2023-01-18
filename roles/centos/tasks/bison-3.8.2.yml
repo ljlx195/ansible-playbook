@@ -1,0 +1,26 @@
+# install bison
+- name: Download bison
+  get_url:
+    url: https://ftp.gnu.org/gnu/bison/bison-{{ BISON_VERSION }}.tar.gz
+    dest: /opt/bison-{{ BISON_VERSION }}.tar.gz
+    validate_certs: false
+
+- name: Extract flex archive
+  unarchive:
+    dest: /opt
+    src: /opt/bison-{{ BISON_VERSION }}.tar.gz
+    creates: /opt/bison-{{ BISON_VERSION }}
+    copy: no
+
+- name: install flex
+  shell: |
+    set -e
+    cd /opt/bison-{{ BISON_VERSION }}
+    ./configure --prefix=/usr --docdir=/usr/share/doc/bison-{{ BISON_VERSION }}
+    make -j "$(nproc)"
+    make check || true
+    make install
+    cd ..
+    rm -rf bison-{{ BISON_VERSION }}*
+    ldconfig
+ 
